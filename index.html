@@ -1,0 +1,138 @@
+<!DOCTYPE HTML><html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>sphaero.org</title>
+    <meta name="description" content="{{ _abstract }}" />
+    <!-- Bootstrap -->
+    <!-- Latest compiled and minified CSS -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+			<style type="text/css">
+			#shorturl {
+				border: solid 1px #CCC;
+				border-radius: 4px;
+				font-weight: bold;
+				font-size: 20px;
+				padding: 2px;
+			}
+			</style>
+		<script>
+		BUTTONS = '<button type="button" class="btn btn-default url_edit"><span class="glyphicon glyphicon-save" aria-hidden="true"></span></button><button type="button" class="btn btn-default url_del"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></button>'
+		function kickstart() 
+    {
+			$('#submit').on('click', add_entry);
+			$('#refresh').on('click', refresh);
+			refresh();
+    }
+    
+    function refresh() 
+    {
+			$('#urllist').empty();
+			$.ajax({
+				dataType: "json",
+				url: "/",
+				contentType: 'application/json'
+			}).error(function(e) {
+            console.log("error getting data");
+            err(e);
+			}).success(generate_list);
+		}
+		
+    function add_entry(e)
+    {
+			var long_url = $('#urlinput').val();
+			$.ajax({
+				method: "POST",
+				url: "/",
+				contentType: 'application/json; charset=UTF-8',
+				dataType: "json",
+				data: long_url
+			}).success(function(data) {
+				//data is the short url
+				$('#shorturl').html("http://z25.org/"+data);
+			}).error(err);
+		}
+		
+    function edit_entry(e)
+    {
+			var id = $(this).parent().prev().prev().prop('id');
+			var long_url = $(this).parent().prev().val();
+			var data = {};
+			data[id] = long_url;
+			$.ajax({
+				method: "PUT",
+				url: "/",
+				contentType: 'application/json; charset=UTF-8',
+				dataType: "json",
+				data: JSON.stringify(data)
+			}).success(function(e) {
+				//reload page to get updated entries
+				window.location.reload();
+			}).error(err);
+		}
+    		
+    function delete_entry(e)
+    {
+			//console.log('delete ' + $(this).parent().prev().prev().prop('id'));
+			var id = $(this).parent().prev().prev().prop('id');
+			$.ajax({
+				method: "DELETE",
+				url: "/",
+				contentType: 'application/json; charset=UTF-8',
+				dataType: "json",
+				data: id
+			}).success(function(e) {
+				//reload page to get updated entries
+				window.location.reload();
+			}).error(err);
+		}
+    
+    function generate_list(data) {
+			for (var key in data) 
+			{
+				var item = $('<dic />', { class: 'input-group' })
+					.html('<span class="input-group-addon" id="'+key+'">http://z25.org/'+key+'</span>'
+								+'<input type="text" class="form-control" value="'+data[key]+'">'
+								+'<span class="input-group-btn">'
+								+BUTTONS);
+				$('#urllist').append(item);
+			}
+			$('.url_del').on('click', delete_entry);
+			$('.url_edit').on('click', edit_entry);
+		}
+		
+		function err(data) 
+		{
+				alert('Error: '+JSON.stringify(data));
+		}
+		</script>
+	</head>
+<body>
+<div id="main_container" class="container">
+	<div class="row">
+		<h2>Paste your long URL here:</h2>
+		<form class="form-horizontal" role="form">
+			<div class="form-group">
+				  <div class="col-lg-10">
+						<div class="input-group">
+							<input id="urlinput" type="text" class="form-control" placeholder="Paste URL...">
+							<span class="input-group-btn">
+								<button id="submit" class="btn btn-default" type="button">Shorten URL</span></button>
+							</span>
+						</div><!-- /input-group -->
+					</div><!-- /.col-lg-10 -->
+					<div class="col-sm-2" id="shorturl">&nbsp;</div>
+			</div>
+		</form>
+		<h4>Current entries <button id="refresh" class="btn btn-default" type="button"><span class="glyphicon glyphicon-refresh" aria-hidden="true"></span></button></h4>
+		<div class="col-sm-12" id='urllist'></div>
+	</div>
+</div>
+<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+	<!-- Latest compiled and minified JavaScript -->
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+	<script>jQuery(document).ready(kickstart());</script>
+</body>
+</html>
