@@ -3,7 +3,7 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>sphaero.org</title>
+    <title>Sphurl</title>
     <meta name="description" content="{{ _abstract }}" />
     <!-- Bootstrap -->
     <!-- Latest compiled and minified CSS -->
@@ -18,8 +18,8 @@
 			}
 			</style>
 		<script>
-		BUTTONS = '<button type="button" class="btn btn-default url_edit"><span class="glyphicon glyphicon-save" aria-hidden="true"></span></button><button type="button" class="btn btn-default url_del"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></button>'
-		function kickstart() 
+    BUTTONS = '<button type="button" class="btn btn-default url_edit"><span class="glyphicon glyphicon-save" aria-hidden="true"></span></button><button type="button" class="btn btn-default url_del"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></button>'
+    function kickstart() 
     {
 			$('#submit').on('click', add_entry);
 			$('#refresh').on('click', refresh);
@@ -31,7 +31,7 @@
 			$('#urllist').empty();
 			$.ajax({
 				dataType: "json",
-				url: "/",
+				url: "",
 				contentType: 'application/json'
 			}).error(function(e) {
             console.log("error getting data");
@@ -44,13 +44,14 @@
 			var long_url = $('#urlinput').val();
 			$.ajax({
 				method: "POST",
-				url: "/",
+				url: "",
 				contentType: 'application/json; charset=UTF-8',
 				dataType: "json",
 				data: long_url
 			}).success(function(data) {
 				//data is the short url
 				$('#shorturl').html("http://z25.org/"+data);
+                refresh();
 			}).error(err);
 		}
 		
@@ -62,7 +63,7 @@
 			data[id] = long_url;
 			$.ajax({
 				method: "PUT",
-				url: "/",
+				url: "",
 				contentType: 'application/json; charset=UTF-8',
 				dataType: "json",
 				data: JSON.stringify(data)
@@ -78,7 +79,7 @@
 			var id = $(this).parent().prev().prev().prop('id');
 			$.ajax({
 				method: "DELETE",
-				url: "/",
+				url: "",
 				contentType: 'application/json; charset=UTF-8',
 				dataType: "json",
 				data: id
@@ -114,14 +115,14 @@
 		<h2>Paste your long URL here:</h2>
 		<form class="form-horizontal" role="form">
 			<div class="form-group">
-				  <div class="col-lg-10">
+				  <div class="col-sm-10">
 						<div class="input-group">
 							<input id="urlinput" type="text" class="form-control" placeholder="Paste URL...">
 							<span class="input-group-btn">
 								<button id="submit" class="btn btn-default" type="button">Shorten URL</span></button>
 							</span>
 						</div><!-- /input-group -->
-					</div><!-- /.col-lg-10 -->
+					</div><!-- /.col-*-* -->
 					<div class="col-sm-2" id="shorturl">&nbsp;</div>
 			</div>
 		</form>
